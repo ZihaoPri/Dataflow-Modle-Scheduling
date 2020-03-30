@@ -1,0 +1,36 @@
+#include <linux/module.h>
+#include <linux/vermagic.h>
+#include <linux/compiler.h>
+
+MODULE_INFO(vermagic, VERMAGIC_STRING);
+MODULE_INFO(name, KBUILD_MODNAME);
+
+__visible struct module __this_module
+__attribute__((section(".gnu.linkonce.this_module"))) = {
+	.name = KBUILD_MODNAME,
+	.init = init_module,
+#ifdef CONFIG_MODULE_UNLOAD
+	.exit = cleanup_module,
+#endif
+	.arch = MODULE_ARCH_INIT,
+};
+
+MODULE_INFO(intree, "Y");
+
+#ifdef CONFIG_RETPOLINE
+MODULE_INFO(retpoline, "Y");
+#endif
+
+static const char __module_depends[]
+__used
+__attribute__((section(".modinfo"))) =
+"depends=";
+
+MODULE_ALIAS("of:N*T*Caurora,nb8800");
+MODULE_ALIAS("of:N*T*Caurora,nb8800C*");
+MODULE_ALIAS("of:N*T*Csigma,smp8642-ethernet");
+MODULE_ALIAS("of:N*T*Csigma,smp8642-ethernetC*");
+MODULE_ALIAS("of:N*T*Csigma,smp8734-ethernet");
+MODULE_ALIAS("of:N*T*Csigma,smp8734-ethernetC*");
+
+MODULE_INFO(srcversion, "CF55D209E1B2A3A8C518119");
