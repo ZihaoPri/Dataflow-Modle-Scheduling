@@ -134,7 +134,7 @@ static inline int fair_policy(int policy)
 
 static inline int rt_policy(int policy)
 {
-	return policy == SCHED_FIFO || policy == SCHED_RR;
+	return policy == SCHED_FIFO || policy == SCHED_RR || policy == SCHED_DF;
 }
 
 static inline int dl_policy(int policy)

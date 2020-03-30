@@ -5075,6 +5075,7 @@ SYSCALL_DEFINE1(sched_get_priority_max, int, policy)
 	switch (policy) {
 	case SCHED_FIFO:
 	case SCHED_RR:
+	case SCHED_DF:
 		ret = MAX_USER_RT_PRIO-1;
 		break;
 	case SCHED_DEADLINE:
@@ -5102,6 +5103,7 @@ SYSCALL_DEFINE1(sched_get_priority_min, int, policy)
 	switch (policy) {
 	case SCHED_FIFO:
 	case SCHED_RR:
+	case SCHED_DF:
 		ret = 1;
 		break;
 	case SCHED_DEADLINE:
