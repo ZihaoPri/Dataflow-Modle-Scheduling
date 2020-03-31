@@ -45,6 +45,8 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
 
+extern struct dataflow_input;
+
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
 #if defined(CONFIG_SCHED_DEBUG) && defined(HAVE_JUMP_LABEL)
@@ -5087,6 +5089,162 @@ SYSCALL_DEFINE1(sched_get_priority_max, int, policy)
 	}
 	return ret;
 }
+
+/**
+ * sys_set_input_data - set one input data for process
+ *  @pid: Caller process pid
+ *  @depend_pid: Depend Process pid
+ *  @index: Input data index
+ *
+ *  If error return an error code
+ */
+SYSCALL_DEFINE3(set_input_data, pid_t, pid, pid_t, depend_pid, int, index)
+{
+    printk("Call set_input_pid, pid = %d, depend_pid = %d, index = %d\n", pid, depend_pid, index);
+    struct task_struct *p;
+    int retval;
+
+    rcu_read_lock();
+    retval = -ESRCH;
+    p = find_process_by_pid(pid);
+    printk("Find process\n");
+    if(p != NULL) {
+        struct dataflow_input* id = p->input_data;
+        int idn = p->input_data_num;
+        printk("Get process depend_data, num = %d\n", idn);
+
+        struct dataflow_input input;
+        input.pid = depend_pid;
+        input.index = index;
+
+        if(idn == 0)
+            id = (struct dataflow_input*)kmalloc(sizeof(input),  GFP_KERNEL);
+        else
+            id = (struct dataflow_input*)krealloc(id, sizeof(input)*(idn + 1),  GFP_KERNEL);
+
+        id[idn] = input;
+        printk("Depend pid and index copy to PCB, depend pid = %d, index = $d, PCB denpend pid = %d, index = %d, input data count : %d\n",
+                depend_pid, index, id[idn].pid, id[idn].index, idn);
+        p->input_data = id;
+        p->input_data_num++;
+        return 0;
+    }
+
+    rcu_read_unlock();
+
+    return retval;
+}
+
+/**
+ * sys_get_input_data - get all input data process
+ *  @pid: Caller process pid
+ *
+ *  If error return an error code
+ */
+SYSCALL_DEFINE1(get_input_data, pid_t, pid) {
+    printk("Call get_input_pid, pid = %d\n", pid);
+    struct task_struct *p;
+    int retval;
+
+    rcu_read_lock();
+    retval = -ESRCH;
+    p = find_process_by_pid(pid);
+    printk("Find process\n");
+    if(p != NULL) {
+        struct dataflow_input* id = p->input_data;
+        int idn = p->input_data_num;
+        printk("Get process depend_data, num = %d\n", idn);
+        int i ;
+        for(i = 0; i< idn; i++) {
+            printk("Depend data index: %d ", i);
+            printk("Depend pid: %d, data index: %d\n", id[i].pid, id[i].index);
+        }
+
+        return 0;
+    }
+
+    rcu_read_unlock();
+
+    return retval;
+}
+
+/**
+ * sys_set_output_data - set one output data for process
+ *  @pid: Caller process pid
+ *  @data: Output data
+ *  @index: Output data index
+ *
+ *  If error return an error code
+ */
+SYSCALL_DEFINE3(set_output_data, pid_t, pid, int, index, int, data)
+{
+    printk("Call set_output_pid, pid = %d, data = %d, index = %d\n", pid, data, index);
+    struct task_struct *p;
+    int retval;
+
+    rcu_read_lock();
+    retval = -ESRCH;
+    p = find_process_by_pid(pid);
+    printk("Find process\n");
+    if(p != NULL) {
+        int* od = p->output_data;
+        int odn = p->output_data_num;
+        printk("Get process depend_data, num = %d\n", odn);
+
+        int max_out = 10;
+        if(odn >= max_out)
+            return retval;
+
+        od[index] = data;
+
+        printk("Output data setup, index = %d, data = %d, PCB data = %d",
+        index, data, od[index]);
+        int i;
+        for(i = 0; i < max_out; i++) {
+            p->output_data[i] = od[i];
+        }
+        p->output_data_num++;
+        return 0;
+    }
+
+    rcu_read_unlock();
+
+    return retval;
+}
+
+/**
+ *  sys_get_output_data - get all input data process
+ *  @pid: Caller process pid
+ *
+ *  If error return an error code
+ */
+SYSCALL_DEFINE1(get_output_data, pid_t, pid) {
+    printk("Call get_output_pid, pid = %d\n", pid);
+    struct task_struct *p;
+    int retval;
+
+    rcu_read_lock();
+    retval = -ESRCH;
+    p = find_process_by_pid(pid);
+    printk("Find process\n");
+    if(p != NULL) {
+        int* od = p->output_data;
+        int odn = p->output_data_num;
+        printk("Get process output data count, num = %d\n", odn);
+        int i;
+        for(i = 0; i< odn; i++) {
+            printk("Output data index: %d ", i);
+            printk("Output data: %d\n", od[i]);
+        }
+
+        return 0;
+    }
+
+    rcu_read_unlock();
+
+    return retval;
+}
+
 
 /**
  * sys_sched_get_priority_min - return minimum RT priority.
