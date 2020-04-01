@@ -316,6 +316,10 @@ __SYSCALL_64(329, sys_pkey_mprotect, )
 __SYSCALL_64(330, sys_pkey_alloc, )
 __SYSCALL_64(331, sys_pkey_free, )
 __SYSCALL_64(332, sys_statx, )
+__SYSCALL_64(333, sys_set_input_data, )
+__SYSCALL_64(334, sys_get_input_datas, )
+__SYSCALL_64(335, sys_set_output_data, )
+__SYSCALL_64(336, sys_get_output_datas, )
 #ifdef CONFIG_X86_X32_ABI
 __SYSCALL_64(512, compat_sys_rt_sigaction, )
 #endif

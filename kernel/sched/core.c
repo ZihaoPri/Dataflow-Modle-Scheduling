@@ -5123,7 +5123,7 @@ SYSCALL_DEFINE3(set_input_data, pid_t, pid, pid_t, depend_pid, int, index)
             id = (struct dataflow_input*)krealloc(id, sizeof(input)*(idn + 1),  GFP_KERNEL);
 
         id[idn] = input;
-        printk("Depend pid and index copy to PCB, depend pid = %d, index = $d, PCB denpend pid = %d, index = %d, input data count : %d\n",
+        printk("Depend pid and index copy to PCB, depend pid = %d, index = %d, PCB denpend pid = %d, index = %d, input data count : %d\n",
                 depend_pid, index, id[idn].pid, id[idn].index, idn);
         p->input_data = id;
         p->input_data_num++;
@@ -5141,7 +5141,7 @@ SYSCALL_DEFINE3(set_input_data, pid_t, pid, pid_t, depend_pid, int, index)
  *
  *  If error return an error code
  */
-SYSCALL_DEFINE1(get_input_data, pid_t, pid) {
+SYSCALL_DEFINE1(get_input_datas, pid_t, pid) {
     printk("Call get_input_pid, pid = %d\n", pid);
     struct task_struct *p;
     int retval;
@@ -5218,7 +5218,7 @@ SYSCALL_DEFINE3(set_output_data, pid_t, pid, int, index, int, data)
  *
  *  If error return an error code
  */
-SYSCALL_DEFINE1(get_output_data, pid_t, pid) {
+SYSCALL_DEFINE1(get_output_datas, pid_t, pid) {
     printk("Call get_output_pid, pid = %d\n", pid);
     struct task_struct *p;
     int retval;

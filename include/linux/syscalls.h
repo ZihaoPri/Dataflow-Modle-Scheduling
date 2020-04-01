@@ -945,6 +945,6 @@ asmlinkage long sys_statx(int dfd, const char __user *path, unsigned flags,
 
 /*wzh*/
 asmlinkage long sys_set_input_data(pid_t pid, pid_t depend_pid, int index);
-asmlinkage long sys_get_input_data(pid_t pid);
+asmlinkage long sys_get_input_datas(pid_t pid);
 asmlinkage long sys_set_output_data(pid_t pid, int index, int data);
 asmlinkage long sys_get_output_datas(pid_t pid);
