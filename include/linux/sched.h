@@ -84,6 +84,9 @@ struct task_group;
 #define TASK_NEW			0x0800
 #define TASK_STATE_MAX			0x1000
 
+// For DF sched
+#define MAX_OUTPUT_DATA     10
+
 /* Convenience macros for the sake of set_current_state: */
 #define TASK_KILLABLE			(TASK_WAKEKILL | TASK_UNINTERRUPTIBLE)
 #define TASK_STOPPED			(TASK_WAKEKILL | __TASK_STOPPED)
@@ -254,6 +257,15 @@ struct task_cputime {
 	u64				utime;
 	u64				stime;
 	unsigned long long		sum_exec_runtime;
+};
+
+/**DataFLow Input - For scheding
+ * @pid depend pid
+ * @index data index
+ **/
+struct dataflow_input {
+    pid_t pid;
+    int index;
 };
 
 /* Alternate field names when used on cache expirations: */
@@ -579,6 +591,12 @@ struct task_struct {
 	/* Per task flags (PF_*), defined further below: */
 	unsigned int			flags;
 	unsigned int			ptrace;
+
+	/*Dataflow-Model DS*/
+	int                     input_data_num;
+    struct dataflow_input*         input_data;
+    int                     output_data_num;
+    int                     output_data[MAX_OUTPUT_DATA];
 
 #ifdef CONFIG_SMP
 	struct llist_node		wake_entry;
