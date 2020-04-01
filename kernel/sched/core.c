@@ -5195,6 +5195,13 @@ SYSCALL_DEFINE3(set_output_data, pid_t, pid, int, index, int, data)
         if(odn >= max_out)
             return retval;
 
+        if(odn == 0) {
+            int i;
+            for(i = 0;i < max_out; i++) {
+                od[i] = 0;
+            }
+        }
+
         od[index] = data;
 
         printk("Output data setup, index = %d, data = %d, PCB data = %d",
