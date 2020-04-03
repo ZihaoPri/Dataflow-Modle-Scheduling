@@ -6,6 +6,8 @@
 
 #include "sched.h"
 
+#include <linux/sched.h>
+#include <linux/pid.h>
 #include <linux/slab.h>
 #include <linux/irq_work.h>
 
@@ -1493,6 +1495,19 @@ static void check_preempt_curr_rt(struct rq *rq, struct task_struct *p, int flag
 #endif
 }
 
+/**
+ * find_process_by_pid - find a process with a matching PID value.
+ * @pid: the pid in question.
+ *
+ * The task of @pid, if found. %NULL otherwise.
+ */
+static struct task_struct *find_process_by_pid(pid_t pid)
+{
+    return pid ? find_task_by_vpid(pid) : current;
+}
+
+
+
 static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 						   struct rt_rq *rt_rq)
 {
@@ -1505,7 +1520,39 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	BUG_ON(idx >= MAX_RT_PRIO);
 
 	queue = array->queue + idx;
-	next = list_entry(queue->next, struct sched_rt_entity, run_list);
+	again:
+    next = list_entry(queue->next,
+            struct sched_rt_entity, run_list);
+
+    struct task_struct *p = rt_task_of(next);
+
+    // If SCHED_DF check depend pids
+    if (p->policy == SCHED_DF) {
+        printk("Get DF sched,pid : %d, depend_input num: %d\n", p->pid, p->input_data_num);
+        struct dataflow_input *input = p->input_data;
+        int i;
+        for (i = 0; i < p->input_data_num; i++) {
+            printk("Get depend pid : %d, input index : %d \n", input[i].pid, input[i].index);
+
+            struct pid *pid_struct = find_get_pid(input[i].pid);
+            struct task_struct *task = pid_task(pid_struct, PIDTYPE_PID);
+            printk("Get PCB for pid : %d", input[i].pid);
+
+            int *output = task->output_data;
+            int idx = input[i].index;
+
+            if (output[idx] != 0) {
+                printk("Data input!\n");
+            } else {
+                printk("No data\n");
+                //Delete node and move to the end
+                list_del(&next->run_list);
+                list_add_tail(&next->run_list, queue->next);
+                printk("Waiting for input data, move to end of rq");
+                goto again;
+            }
+        }
+    }
 
 	return next;
 }
